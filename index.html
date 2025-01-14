@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Emoji Match</title>
+  <style>
+    body{font-family:system-ui;text-align:center;background:#f0f0f0;margin:0;padding:10px;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+    h1{color:#333;font-size:clamp(20px,5vw,24px);margin:5px}
+    #game{display:grid;grid-template-columns:repeat(4,1fr);gap:min(2vw,10px);width:min(95vw,400px);margin:10px auto}
+    .card{aspect-ratio:1;background:#fff;border-radius:8px;cursor:pointer;font-size:0;transition:transform .3s;box-shadow:0 2px 4px rgba(0,0,0,.1);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    .card.flipped{font-size:clamp(20px,8vw,30px);background:#e0e0e0}
+    #stats{margin:10px;font-size:clamp(16px,4vw,18px)}
+    .win{color:#4CAF50;font-weight:bold}
+    @media(max-height:600px){h1{font-size:16px}#stats{font-size:14px}.card.flipped{font-size:16px}}
+  </style>
+</head>
+<body>
+  <h1>Emoji Match</h1>
+  <div id="stats">Moves: <span id="moves">0</span></div>
+  <div id="game"></div>
+  <script>
+    const emojis='🐱🐶🐰🐼🦊🐯🦁🐸';
+    let cards=[...emojis,...emojis],moves=0,flipped=[],matched=[],canFlip=true;
+    const shuffle=a=>{for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}};
+    shuffle(cards);
+    const game=document.getElementById('game');
+    cards.forEach((_,i)=>game.innerHTML+=`<div class="card" onclick="flip(${i})"></div>`);
+    function flip(i){
+      if(!canFlip||flipped.includes(i)||matched.includes(i))return;
+      const card=game.children[i];
+      card.classList.add('flipped');
+      card.innerHTML=cards[i];
+      flipped.push(i);
+      if(flipped.length===2){
+        moves++;
+        document.getElementById('moves').textContent=moves;
+        canFlip=false;
+        setTimeout(checkMatch,500);
+      }
+    }
+    function checkMatch(){
+      const [a,b]=flipped,cardA=game.children[a],cardB=game.children[b];
+      if(cards[a]===cards[b]){
+        matched.push(a,b);
+        if(matched.length===cards.length){
+          document.getElementById('stats').innerHTML+=`<div class="win">You won in ${moves} moves!</div>`;
+        }
+      }else{
+        cardA.classList.remove('flipped');
+        cardB.classList.remove('flipped');
+        cardA.innerHTML=cardB.innerHTML='';
+      }
+      flipped=[];
+      canFlip=true;
+    }
+  </script>
+</body>
+</html>
